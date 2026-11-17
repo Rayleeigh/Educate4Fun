@@ -175,6 +175,27 @@ def main():
                 assert page.locator('#preview').get_attribute('src') == preview_src
                 assert not page.locator('#mission-picker').evaluate('(el)=>el.open')
                 page.locator('#previous').click()
+                # Highlight and validate each language without running learner scripts.
+                for filename, invalid, valid in (
+                    ('index.html', '<section><h2>Oops</section>', '<h2 title="Safe">Valid</h2>'),
+                    ('style.css', 'body { color: definitely-invalid; }', 'body { color: red; }'),
+                    ('style.css', 'body { color: red;', 'body { content: "{"; /* } */ color: red; }'),
+                    ('script.js', 'const broken = ;', 'window.validationExecuted = true;'),
+                ):
+                    page.get_by_role('tab', name=filename, exact=True).click()
+                    before = page.locator('#code').input_value()
+                    page.locator('#code').fill(invalid)
+                    page.wait_for_function('() => document.querySelector("#diagnostics button") !== null')
+                    assert page.locator('#highlight .token').count() > 0
+                    page.locator('#diagnostics button').first.click()
+                    assert page.locator('#code').evaluate('(el)=>el===document.activeElement')
+                    page.locator('#code').fill(valid)
+                    expect(page.locator('#validation-summary')).to_have_text(filename + ': No syntax issues found')
+                    assert page.locator('#diagnostics button').count() == 0
+                    assert page.evaluate('window.validationExecuted === undefined')
+                    assert page.locator('#highlight').text_content() == valid + '\n'
+                    page.locator('#code').fill(before)
+                page.get_by_role('tab', name='index.html', exact=True).click()
                 # Autosave persists edits without blocking typing, then survives reload.
                 page.locator('#code').fill('<h2>Autosaved dashboard</h2>')
                 page.wait_for_function('() => document.querySelector("#save-status").textContent==="All changes saved"')

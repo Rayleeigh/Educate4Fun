@@ -216,9 +216,9 @@ def make_handler(store, preview=False, preview_port=8091, api_url='http://127.0.
                         self.reply(200, response.read(128 * 1024))
                 except (URLError, TimeoutError, OSError):
                     self.reply(502, {'error': 'The API reference is unavailable. Check the API service and try again.'})
-            elif path in ('/', '/app.js', '/style.css'):
+            elif path in ('/', '/app.js', '/editor.js', '/style.css', '/vendor/prism.js', '/vendor/acorn.js', '/vendor/csstree.js', '/vendor/htmlhint.js'):
                 name = 'index.html' if path == '/' else path[1:]
-                self.reply(200, (STATIC / name).read_bytes(), {'index.html': 'text/html', 'app.js': 'text/javascript', 'style.css': 'text/css'}[name] + '; charset=utf-8')
+                self.reply(200, (STATIC / name).read_bytes(), ('text/html' if name == 'index.html' else 'text/css' if name == 'style.css' else 'text/javascript') + '; charset=utf-8')
             else:
                 self.reply(404, {'error': 'Not found.'})
 

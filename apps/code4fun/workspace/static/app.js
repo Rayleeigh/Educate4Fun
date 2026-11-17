@@ -34,7 +34,7 @@ function setBusy(value) {
   $('code').readOnly = value || !!pendingDraft;
   if (!value && !pendingDraft) { $('previous').disabled = stage === 0; $('next').disabled = stage === 5; scheduleAutosave(); }
 }
-function lines() { $('line-numbers').textContent = Array.from({length:$('code').value.split('\n').length}, (_, i) => i+1).join('\n'); }
+function lines() { updateEditor(activeFile); $('line-numbers').textContent = Array.from({length:$('code').value.split('\n').length}, (_, i) => i+1).join('\n'); }
 function selectFile(name) {
   activeFile = name; $('code').value = files[name]; $('editor-label').textContent = 'Editing ' + name;
   for (const button of $('files').children) { button.setAttribute('aria-selected', String(button.dataset.file === name)); button.tabIndex = button.dataset.file === name ? 0 : -1; }
@@ -142,7 +142,7 @@ async function save(automatic=false) {
   scheduleAutosave();
 }
 $('code').addEventListener('input', () => {files[activeFile]=$('code').value;lines();cacheDraft();$('check-caption').textContent='Code changed. Run checks again.';schedulePreview();});
-$('code').addEventListener('scroll', () => {$('line-numbers').scrollTop=$('code').scrollTop;});
+$('code').addEventListener('scroll', () => {$('line-numbers').scrollTop=$('code').scrollTop;syncHighlight();});
 const indentUnit = '\t';
 let releaseEditorTab = false;
 function editCode(from, to, replacement, selectionStart, selectionEnd=selectionStart, direction='none') {

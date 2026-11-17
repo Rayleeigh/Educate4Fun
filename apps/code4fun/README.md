@@ -187,3 +187,5 @@ code or reloading the workspace. Do not expose this setup as a public multiuser 
 See the [plan](../../docs/code4fun/plan.md),
 [implementation guide](../../docs/code4fun/implementation.md), and
 [repository architecture](../../docs/monorepo.md).
+
+The editor highlights HTML, CSS, and JavaScript and checks the active file after a brief pause in typing. Syntax feedback lists line and column numbers; click a message to jump to it. Validation parses JavaScript without executing it, checks HTML structure and attributes, and checks CSS syntax and property values. Stage requirements still use **Check my work**. Browser libraries are bundled locally in `workspace/static/vendor` with their licenses.
